@@ -8,6 +8,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 
 contract CertificateNFT is ERC721, ERC721URIStorage{
     address public initialOwner;
+    mapping(uint => bool) private _transferable;
     
     constructor() ERC721("MyCertificate", "MCT")   {
                 initialOwner = msg.sender;}
@@ -24,6 +25,7 @@ contract CertificateNFT is ERC721, ERC721URIStorage{
     {
         _safeMint(to, tokenId);
         _setTokenURI(tokenId, uri);
+        _transferable[tokenId] = false;
     }
 
     // The following functions are overrides required by Solidity.
@@ -46,21 +48,17 @@ contract CertificateNFT is ERC721, ERC721URIStorage{
     {
         return super.supportsInterface(interfaceId);
     }
-       function checkOwnership(address from, address to, uint256 tokenId) internal onlyOwner {
-        require(from == initialOwner,"You are not owner");
+    
+    //    function notTransferable(address from, address to, uint256 tokenId) internal  {
+    //     require(from == initialOwner,"You are not owner");
 
-        // if (to != address(0)) {
-        //     revert ERC721InvalidReceiver(address(0));
-        // }
-        address previousOwner = _update(to, tokenId, address(0));
-        if (previousOwner == address(0)) {
-            revert ERC721NonexistentToken(tokenId);
-        } else if (previousOwner != from) {
-            revert ERC721IncorrectOwner(from, tokenId, previousOwner);
-        }
-     
+    //     // if (to != address(0)) {
+    //     //     revert ERC721InvalidReceiver(address(0));
+    //     // }
+    //     address previousOwner = _update(to, tokenId, address(0));
+    //     if (previousOwner == address(0)) {
+    //         revert ERC721NonexistentToken(tokenId);
+    //     } else if (previousOwner != from) {
+    //         revert ERC721IncorrectOwner(from, tokenId, previousOwner);
+    //     }
 }
-
-}
-
-//CertificateNFT - 0xd5468d2e3de3F9EB3371FC772758c7ed57d4440F
