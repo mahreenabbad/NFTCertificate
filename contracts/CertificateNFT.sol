@@ -7,35 +7,40 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 
 
 contract CertificateNFT is ERC721, ERC721URIStorage{
+
     address public initialOwner;
-    mapping(address => bool) private _transferable;
-    mapping(address => uint) private transfered;
-  
+    uint public _nextTokenId;
+
+    mapping(uint=> bool) public approvedNFT;
+    mapping(uint => address) public boundNFTs;
     
-    constructor() ERC721("MyCertificate", "MCT")   {
+    //  mapping(uint => bool) public boundNFTRequests;
+    event BoundTokenMinted(address indexed to, uint256 indexed tokenId);
+    
+    constructor() ERC721("Student Certificate", "SCT")   {
                 initialOwner = msg.sender;}
 
      modifier onlyOwner() {
-        require(msg.sender==initialOwner,"Not authuorized");
+        require(msg.sender==initialOwner,"You are Not Owner");
         _;
     }
+     
 
-   
-    
-
-    function safeMint(address to, uint256 tokenId, string memory uri)
-        public
-        onlyOwner
-    {
-        require(transfered[to] == 0, "Already transfered to you");
-        _transferable[to] = true;
-        require(_transferable[to]==true,"Already transfered to you");
-        _safeMint(to, tokenId);
-        _setTokenURI(tokenId, uri);
-        _transferable[to] = false;
-        transfered[to]++;
-
+     function mintSoulBoundToken(address _to, uint _tokenId, string memory uri) external onlyOwner {
+        require(approvedNFT[_tokenId], "NFT not approved");
+      
+        _safeMint(_to, _tokenId);
+        _setTokenURI(_tokenId, uri);
+        boundNFTs[_tokenId] = msg.sender;
+         emit BoundTokenMinted(_to, _tokenId);
     }
+      
+     function approveBoundNFT(uint _tokenId) external onlyOwner {
+        // require(boundNFTRequests[_tokenId], "Bound NFT  request not submitted");
+        approvedNFT[_tokenId] = true;
+    }
+   ////////////////////////////////////////////////
+   
 
     // The following functions are overrides required by Solidity.
 
@@ -57,6 +62,14 @@ contract CertificateNFT is ERC721, ERC721URIStorage{
     {
         return super.supportsInterface(interfaceId);
     }
+    /////////////////////
+     function _update(address to, uint256 tokenId, address auth) internal override returns (address) {
+        address from = _ownerOf(tokenId);
+        require(from == address(0) || to == address(0), "SoulBoundNFT: token transfer is not allowed");
+        require(approvedNFT[tokenId] ==true,"Bound NFT not Approved");
+        return super._update(to, tokenId, auth);
+    }
+    
     
  
      

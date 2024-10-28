@@ -1,2 +1,4 @@
 //deploy
  npx hardhat ignition deploy ./ignition/modules/CertificateNFT.js --network sepolia
+
+ npx hardhat ignition deploy ./ignition/modules/Interact.js --network sepolia
